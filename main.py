@@ -1,8 +1,22 @@
 import sys
 import ctypes
 
+import os, subprocess
+
+def prompt_sudo():
+    ret = 0
+    try:
+        if os.geteuid() != 0:
+            msg = "[sudo] password for %u:"
+            ret = subprocess.check_call("sudo -v -p '%s'" % msg, shell=True)
+        return ret
+    except:
+        if ctypes.windll.shell32.IsUserAnAdmin != 0: raise Exception('Run with admin privilegies')
+
 # Check root privilegies
-if ctypes.windll.shell32.IsUserAnAdmin != 0: raise Exception('Run with admin privilegies')
+# the user wasn't authenticated as a sudoer, exit?
+prompt_sudo()
+
 
 args = sys.argv
 # Remove the file name argument
